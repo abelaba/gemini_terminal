@@ -1,13 +1,30 @@
 #!/bin/zsh
 
-# Check if an argument is provided
 if [ -z "$1" ]; then
-  echo "Usage: $0 <text> [-c | -context]"
+  echo "Usage: $0 <text>"
   echo ""
-  return 1
+  exit 1
 fi
 
-# Get the text argument
-text="$*"
+if [ "$1" == "--file" ]; then
+  if [ -z "$2" ]; then
+    echo "Usage: $0 --file <filename>"
+    echo ""
+    exit 1
+  fi
 
-python3 ./gemini.py $text
+  file="$2"
+
+  if [ ! -f "$file" ]; then
+    echo "File not found: $file"
+    exit 1
+  fi
+
+  text=$(cat "$file")
+else
+  text="$*"
+fi
+
+echo "$text"
+
+python3 ./gemini.py "$text"
