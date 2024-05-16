@@ -19,10 +19,18 @@ def get_selected_model():
     return selected
 
 
+def get_image_model():
+    tree, root = parse_xml(XML_FILE_PATH)
+    image_model = root.find('image_model').text
+    
+    return image_model
+
 selected_model = get_selected_model()
+selected_image_model = get_image_model()
+
 
 model = genai.GenerativeModel(selected_model)
-image_model = genai.GenerativeModel('gemini-pro-vision')
+image_model = genai.GenerativeModel(selected_image_model)
 
 def main():
     arguments = sys.argv[1:]
