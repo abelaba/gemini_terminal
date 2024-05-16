@@ -25,6 +25,15 @@ def get_image_model():
     
     return image_model
 
+
+
+def get_all_models():
+    tree, root = parse_xml(XML_FILE_PATH)
+    models = [model.find('name').text for model in root.findall('model')]
+    return models
+
+
+
 selected_model = get_selected_model()
 selected_image_model = get_image_model()
 
