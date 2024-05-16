@@ -1,6 +1,7 @@
 import sys
 import google.generativeai as genai
 import PIL.Image
+import xml.etree.ElementTree as ET
 
 GOOGLE_API_KEY="" # Replace with google api key
 genai.configure(api_key=GOOGLE_API_KEY)

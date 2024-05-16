@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<models>
+    <selected>gemini-1.0-pro</selected>
+    <image_model>gemini-pro-vision</image_model>
+    <model>
+        <name>gemini-1.0-pro</name>
+    </model>
+    <model>
+        <name>gemini-1.5-flash-latest</name>
+    </model>
+    <model>
+        <name>gemini-1.5-pro-latest</name>
+    </model>
+</models>
