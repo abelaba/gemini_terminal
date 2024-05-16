@@ -5,8 +5,23 @@ import xml.etree.ElementTree as ET
 
 GOOGLE_API_KEY="" # Replace with google api key
 genai.configure(api_key=GOOGLE_API_KEY)
+XML_FILE_PATH = './gemini.xml'
 
-model = genai.GenerativeModel('gemini-pro')
+def parse_xml(file_path):
+    tree = ET.parse(file_path)
+    root = tree.getroot()
+    return tree, root
+
+def get_selected_model():
+    tree, root = parse_xml(XML_FILE_PATH)
+    selected = root.find('selected').text
+    
+    return selected
+
+
+selected_model = get_selected_model()
+
+model = genai.GenerativeModel(selected_model)
 image_model = genai.GenerativeModel('gemini-pro-vision')
 
 def main():
