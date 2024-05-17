@@ -32,6 +32,17 @@ def get_all_models():
     models = [model.find('name').text for model in root.findall('model')]
     return models
 
+def update_selected_model(new_model_name):
+    tree, root = parse_xml(XML_FILE_PATH)
+    models = get_all_models()
+    if new_model_name not in models:
+        print(f"Model '{new_model_name}' is not in the models list. Available models: {models}")
+        return 
+
+    selected_element = root.find('selected')
+    selected_element.text = new_model_name
+    tree.write(XML_FILE_PATH, encoding='UTF-8', xml_declaration=True)
+    print(f"Selected model updated to {new_model_name}")
 
 
 selected_model = get_selected_model()
@@ -45,6 +56,14 @@ def main():
     arguments = sys.argv[1:]
     prompt = "".join(arguments)
     prompt_list = prompt.split(" ")
+
+    if len(prompt_list) == 2 and prompt_list[0] == '--updatemodel':
+        update_selected_model(prompt_list[1])
+        return
+    elif len(prompt_list) == 1 and prompt_list[0] == '--models':
+        models = get_all_models()
+        print(models)
+        return
 
     if len(prompt_list) >= 1 and len(prompt_list) == 2 and prompt_list[0] == '--image':
         img = PIL.Image.open(prompt_list[1])
