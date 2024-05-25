@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 
-class Parser:
+class XMLParser:
     XML_FILE_PATH = './gemini.xml'
 
     def __init__(self):
