@@ -3,7 +3,7 @@ import google.generativeai as genai
 import PIL.Image
 import xml.etree.ElementTree as ET
 
-from parser import XMLParser
+from xml_parser import XMLParser
 
 GOOGLE_API_KEY=""
 genai.configure(api_key=GOOGLE_API_KEY)
