@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<models>
+<gemini>
     <selected>gemini-1.0-pro</selected>
     <image_model>gemini-pro-vision</image_model>
     <model>
@@ -11,4 +11,14 @@
     <model>
         <name>gemini-1.5-pro-latest</name>
     </model>
-</models>
+    <prompts>
+        <code>
+            <tag>explain</tag>
+            <prompt>Could you please explain the following piece of code to me in detail, including its purpose, how it works, and any important concepts or techniques it uses?</prompt>
+        </code>
+        <code>
+            <tag>debug</tag>
+            <prompt>Could you please review and debug the following code snippet for me?</prompt>
+        </code>
+    </prompts>
+</gemini>
