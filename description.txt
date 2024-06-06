@@ -1,0 +1,21 @@
+Description
+
+1. --updatemodel <model_name>
+    Purpose: Updates the selected model to the specified model name.
+    Example: ./gemini.zsh --updatemodel gemini-1.0-pro
+
+2. --models
+    Purpose: Lists all available models.
+    Example: ./gemini.zsh --models
+
+3. --file <prompt_tag> <file_path>
+    <prompt_tag> = debug
+        Purpose: Processes the specified file and debug the code.
+        Example: ./gemini.zsh --file debug /path/to/file.py
+    <prompt_tag> = explain
+        Purpose: Processes the specified file and explain the code.
+        Example: ./gemini.zsh --file explain /path/to/file.py
+
+4. --image <image_path> [optional_prompt]
+    Purpose: Processes the specified image, optionally using the provided prompt.
+    Example: ./gemini.zsh --image /path/to/image.jpg "Describe this image"

@@ -6,6 +6,8 @@ import xml.etree.ElementTree as ET
 from xml_parser import XMLParser
 
 GOOGLE_API_KEY=""
+DESCRIPTION_FILE = "./description.txt"
+
 genai.configure(api_key=GOOGLE_API_KEY)
 
 def read_file(file_path):
@@ -22,6 +24,13 @@ selected_image_model = parser.get_image_model()
 
 model = genai.GenerativeModel(selected_model)
 image_model = genai.GenerativeModel(selected_image_model)
+
+def get_description(prompt_list):
+    if len(prompt_list) == 1 and prompt_list[0] == "--help":
+        description = read_file(DESCRIPTION_FILE)
+        print(description)
+        return True
+    return False
 
 def update_model(parser, prompt_list):
     if len(prompt_list) == 2 and prompt_list[0] == '--updatemodel':
