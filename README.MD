@@ -43,6 +43,12 @@ Before you begin, ensure you have met the following requirements:
 
 4. **Ensure you have the `gemini.xml` configuration file** in the project root directory with the necessary model details.
 
+5. **Inorder to give proper permissions for the script file** in the project root directory open a terminal and execute the following command
+        
+    ```bash
+    chmod +x gemini.zsh 
+    ```
+
 ## Usage
 
 To start using the CLI, run the provided shell script with appropriate commands:
