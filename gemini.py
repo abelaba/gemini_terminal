@@ -1,90 +1,116 @@
+import os
 import sys
+from typing import Any, List
 import google.generativeai as genai
 import PIL.Image
-import xml.etree.ElementTree as ET
-
+from dotenv import load_dotenv
+from utils import read_file
 from xml_parser import XMLParser
 
-GOOGLE_API_KEY=""
+load_dotenv()
+
 DESCRIPTION_FILE = "./description.txt"
 
-genai.configure(api_key=GOOGLE_API_KEY)
 
-def read_file(file_path):
-    with open(file_path, 'r') as file:
-    # Read the contents of the file
-        content = file.read()
-        # Print the content
-        return content
+class GeminiInterface:
+    def __init__(self, xml_parser: XMLParser, llm_api: Any) -> None:
+        self.parser = xml_parser
 
-parser = XMLParser()
+        selected_model = self.parser.get_selected_model()
+        selected_image_model = self.parser.get_image_model()
 
-selected_model = parser.get_selected_model()
-selected_image_model = parser.get_image_model()
+        self.model = llm_api.GenerativeModel(selected_model)
+        self.image_model = llm_api.GenerativeModel(selected_image_model)
+        self._prompts = {}
 
-model = genai.GenerativeModel(selected_model)
-image_model = genai.GenerativeModel(selected_image_model)
+    def initalize_prompts(self) -> None:
+        self._prompts["--help"] = self._get_description
+        self._prompts["--updatemodel"] = self._update_model
+        self._prompts["--updatemodel"] = self._update_model
+        self._prompts["--models"] = self._list_models
+        self._prompts["--file"] = self._process_file
+        self._prompts["--image"] = self._process_image
+        self._prompts["--generate"] = self._generate_content
 
-def get_description(prompt_list):
-    if len(prompt_list) == 1 and prompt_list[0] == "--help":
+    def invoke_prompt(self, arguments: List[str]) -> None:
+        prompt_list = arguments
+
+        if len(prompt_list) == 0:
+            raise ValueError("You haven't passed a prompt")
+
+        prompt = prompt_list[0]
+        if prompt not in self._prompts:
+            raise ValueError("Invalid prompt")
+
+        response = self._prompts[prompt](prompt_list)
+
+        print(":)")
+        print()
+        print(response)
+        print()
+
+    def _get_description(self, prompt_list: List[str]) -> str:
+        if len(prompt_list) != 1:
+            raise ValueError("Invalid prompt")
+
         description = read_file(DESCRIPTION_FILE)
-        print(description)
-        return True
-    return False
+        return description
 
-def update_model(parser, prompt_list):
-    if len(prompt_list) == 2 and prompt_list[0] == '--updatemodel':
-        parser.update_selected_model(prompt_list[1])
-        return True
-    return False
+    def _update_model(self, prompt_list: List[str]) -> str:
+        if len(prompt_list) != 2:
+            raise ValueError("Invalid prompt")
 
-def list_models(parser, prompt_list):
-    if len(prompt_list) == 1 and prompt_list[0] == '--models':
-        models = parser.get_all_models()
-        print(models)
-        return True
-    return False
+        return self.parser.update_selected_model(prompt_list[1])
 
-def process_file(parser, model, prompt_list):
-    if len(prompt_list) == 3 and prompt_list[0] == '--file':
-        prompt = parser.get_prompt_by_tag(prompt_list[1])
+    def _list_models(self, prompt_list: List[str]) -> str:
+        if len(prompt_list) != 1:
+            raise ValueError("Invalid prompt")
+
+        models = self.parser.get_all_models()
+        return "\n".join(models)
+
+    def _process_file(self, prompt_list: List[str]) -> str:
+        if len(prompt_list) != 3:
+            raise ValueError("Invalid prompt")
+
+        prompt = self.parser.get_prompt_by_tag(prompt_list[1])
         if prompt:
             file_content = read_file(prompt_list[2])
-            return model.generate_content(prompt + " " + file_content).text
+            return self.model.generate_content(prompt + " " + file_content).text
         else:
-            return 'Could not find prompt'
-    return None
+            return "Could not find prompt"
 
-def process_image(image_model, prompt_list):
-    if len(prompt_list) >= 2 and prompt_list[0] == '--image':
+    def _process_image(self, prompt_list: List[str]) -> str:
+        if len(prompt_list) < 2:
+            raise ValueError("Invalid prompt")
+
         img = PIL.Image.open(prompt_list[1])
         if len(prompt_list) == 2:
-            return image_model.generate_content(img).text
+            return self.image_model.generate_content(img).text
         else:
-            return image_model.generate_content([''.join(prompt_list[2:]), img]).text
-    return None
+            return self.image_model.generate_content(
+                ["".join(prompt_list[2:]), img]
+            ).text
 
-def generate_response(model, arguments, parser, image_model):
-    prompt = "".join(arguments)
-    prompt_list = prompt.split(" ")
+    def _generate_content(self, prompt_list: List[str]) -> str:
+        message = "".join(prompt_list[1:])
+        return self.model.generate_content(message).text
 
-    if update_model(parser, prompt_list) or list_models(parser, prompt_list):
-        return
-
-    response = process_file(parser, model, prompt_list)
-    if response is None:
-        response = process_image(image_model, prompt_list)
-    if response is None:
-        response = model.generate_content(prompt).text
-
-    print(":)")
-    print()
-    print(response)
-    print()
 
 def main():
-    arguments = sys.argv[1:]
-    generate_response(model, arguments, parser, image_model)
+    try:
+        GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+        genai.configure(api_key=GOOGLE_API_KEY)
+
+        xml_parser = XMLParser(xml_file_path="./gemini.xml")
+
+        cli = GeminiInterface(xml_parser=xml_parser, llm_api=genai)
+        cli.initalize_prompts()
+
+        arguments = sys.argv[1:]
+        cli.invoke_prompt(arguments)
+    except Exception as e:
+        print(e)
 
 
 if __name__ == "__main__":
