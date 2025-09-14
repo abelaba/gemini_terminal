@@ -34,13 +34,13 @@ class XMLParser:
         return self._get_text(self.root, tag)
 
     def get_selected_model(self) -> str:
-        """Get the name for the selected model"""
+        """Get the name for the selected model."""
 
         selected = self._get_value("selected")
         return selected
 
     def get_image_model(self) -> str:
-        """Get the name for the selected image model"""
+        """Get the name for the selected image model."""
 
         image_model = self._get_value("image_model")
         return image_model
@@ -52,7 +52,7 @@ class XMLParser:
         return models
 
     def update_selected_model(self, new_model_name: str) -> str:
-        """Change selected model to a model specified in the list of models in the xml file"""
+        """Change selected model to a model specified in the list of models in the xml file."""
 
         models = self.get_all_models()
 
@@ -71,7 +71,10 @@ class XMLParser:
         return f"Selected model updated to {new_model_name}"
 
     def get_prompt_by_tag(self, tag: str) -> Optional[str]:
-        """Get the prompt that is going to be passed to the llm model for coding tasks"""
+        """
+        Get the prompt that is going to be passed to the llm model for coding tasks
+        based on the specified tag.
+        """
 
         code_element = self._get_element(self.root, "prompt")
 
