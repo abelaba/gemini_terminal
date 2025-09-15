@@ -12,7 +12,7 @@ load_dotenv()
 DESCRIPTION_FILE = "./description.txt"
 
 
-class GeminiInterface:
+class GeminiCLIInterface:
     def __init__(self, xml_parser: XMLParser, llm_api: Any) -> None:
         self.parser = xml_parser
 
@@ -26,13 +26,12 @@ class GeminiInterface:
     def initalize_prompts(self) -> None:
         self._prompts["--help"] = self._get_description
         self._prompts["--updatemodel"] = self._update_model
-        self._prompts["--updatemodel"] = self._update_model
         self._prompts["--models"] = self._list_models
         self._prompts["--file"] = self._process_file
         self._prompts["--image"] = self._process_image
         self._prompts["--generate"] = self._generate_content
 
-    def invoke_prompt(self, arguments: List[str]) -> None:
+    def invoke_prompt(self, arguments: List[str]) -> str:
         prompt_list = arguments
 
         if len(prompt_list) == 0:
@@ -40,38 +39,34 @@ class GeminiInterface:
 
         prompt = prompt_list[0]
         if prompt not in self._prompts:
-            raise ValueError("Invalid prompt")
+            raise ValueError(f"Invalid prompt={prompt}")
 
         response = self._prompts[prompt](prompt_list)
+        return response
 
-        print(":)")
-        print()
-        print(response)
-        print()
+    def _validate_prompts_list(self, prompt_list: List[str], length: int) -> None:
+        if len(prompt_list) != length:
+            raise ValueError("Invalid prompt")
 
     def _get_description(self, prompt_list: List[str]) -> str:
-        if len(prompt_list) != 1:
-            raise ValueError("Invalid prompt")
+        self._validate_prompts_list(prompt_list, 1)
 
         description = read_file(DESCRIPTION_FILE)
         return description
 
     def _update_model(self, prompt_list: List[str]) -> str:
-        if len(prompt_list) != 2:
-            raise ValueError("Invalid prompt")
+        self._validate_prompts_list(prompt_list, 2)
 
         return self.parser.update_selected_model(prompt_list[1])
 
     def _list_models(self, prompt_list: List[str]) -> str:
-        if len(prompt_list) != 1:
-            raise ValueError("Invalid prompt")
+        self._validate_prompts_list(prompt_list, 1)
 
         models = self.parser.get_all_models()
         return "\n".join(models)
 
     def _process_file(self, prompt_list: List[str]) -> str:
-        if len(prompt_list) != 3:
-            raise ValueError("Invalid prompt")
+        self._validate_prompts_list(prompt_list, 3)
 
         prompt = self.parser.get_prompt_by_tag(prompt_list[1])
         if prompt:
@@ -104,11 +99,13 @@ def main():
 
         xml_parser = XMLParser(xml_file_path="./gemini.xml")
 
-        cli = GeminiInterface(xml_parser=xml_parser, llm_api=genai)
+        cli = GeminiCLIInterface(xml_parser=xml_parser, llm_api=genai)
         cli.initalize_prompts()
 
         arguments = sys.argv[1:]
-        cli.invoke_prompt(arguments)
+        result = cli.invoke_prompt(arguments)
+        print(f"\n{result}\n")
+
     except Exception as e:
         print(e)
 
